@@ -1,10 +1,15 @@
 import Breadcrumbs from '../breadcrumbs/breadcrumbs';
-import ProductCard from '../product-card/product-card';
-import CatalogSort from '../catalog-sort/catalog-sort';
+import Cards from '../cards/cards';
 import Pagination from '../pagination/pagination';
+import CatalogSort from '../catalog-sort/catalog-sort';
 import CatalogFilter from '../catalog-filter/catalog-filter';
+import Loader from '../loader/loader';
+import { useAppSelector } from '../../hooks/index';
+import { getLoadedProductsStatus, getProducts } from '../../store/product-process/selectors';
 
-export default function Catalog() {
+export default function Catalog(): JSX.Element {
+  const isDataLoaded = useAppSelector(getLoadedProductsStatus);
+  const products = useAppSelector(getProducts);
   return (
     <div className="page-content">
       <Breadcrumbs />
@@ -15,10 +20,12 @@ export default function Catalog() {
             <CatalogFilter />
             <div className="catalog__content">
               <CatalogSort />
-              <div className="cards catalog__cards">
-                <ProductCard />
-              </div>
-              <Pagination />
+              {isDataLoaded
+                ? <Cards products={products} />
+                : <Loader/>}
+              {isDataLoaded
+                ? <Pagination/>
+                : ''}
             </div>
           </div>
         </div>
