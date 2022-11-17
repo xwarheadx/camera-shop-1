@@ -6,14 +6,14 @@ type BannerProps = {
   promo: PromoType;
 }
 
-function Banner({promo}: BannerProps): JSX.Element {
-  const {id, name} = promo;
+export default function Banner({promo}: BannerProps): JSX.Element {
+  const {id, name, previewImg, previewImg2x, previewImgWebp, previewImgWebp2x} = promo;
 
   return (
     <div className="banner">
       <picture>
-        <source type="image/webp" srcSet="img/content/banner-bg.webp, img/content/banner-bg@2x.webp 2x"/>
-        <img src="img/content/banner-bg.jpg" srcSet="img/content/banner-bg@2x.jpg 2x" width="1280" height="280" alt="баннер"/>
+        <source type="image/webp" srcSet={`../${previewImgWebp}, ../${previewImgWebp2x} 2x`}/>
+        <img src={`../${previewImg}`} srcSet={`../${previewImg2x} 2x`} width="1280" height="280" alt="баннер"/>
       </picture>
       <p className="banner__info">
         <span className="banner__message">Новинка!</span>
@@ -24,5 +24,4 @@ function Banner({promo}: BannerProps): JSX.Element {
     </div>
   );
 }
-export default Banner;
 

@@ -1,15 +1,24 @@
+import { useEffect } from 'react';
 import Breadcrumbs from '../breadcrumbs/breadcrumbs';
 import Cards from '../cards/cards';
 import Pagination from '../pagination/pagination';
 import CatalogSort from '../catalog-sort/catalog-sort';
 import CatalogFilter from '../catalog-filter/catalog-filter';
 import Loader from '../loader/loader';
-import { useAppSelector } from '../../hooks/index';
-import { getLoadedProductsStatus, getProducts } from '../../store/product-process/selectors';
+import { useAppDispatch, useAppSelector } from '../../hooks/index';
+import { fetchProductsAction } from '../../store/api-actions';
+import { getLoadedProductsStatus, getPage, getProducts } from '../../store/product-process/selectors';
 
 export default function Catalog(): JSX.Element {
+  const dispatch = useAppDispatch();
   const isDataLoaded = useAppSelector(getLoadedProductsStatus);
+  const currentPage = useAppSelector(getPage);
   const products = useAppSelector(getProducts);
+
+  useEffect(()=>{
+    dispatch(fetchProductsAction());
+  },[currentPage, dispatch]);
+
   return (
     <div className="page-content">
       <Breadcrumbs />

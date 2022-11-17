@@ -31,7 +31,7 @@
       "htmlacademy/react-typescript"
     ],
     "parserOptions": {
-      "tsconfigRootDir": "./project/",
+      "tsconfigRootDir": "./project",
       "project": [
         "tsconfig.json"
       ]

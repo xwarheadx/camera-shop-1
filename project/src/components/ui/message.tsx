@@ -5,7 +5,7 @@ type MessageProps = {
   props: MessageType;
 }
 
-function Message({props}: MessageProps):JSX.Element {
+export default function Message({props}: MessageProps):JSX.Element {
 
   const [{status, title, message}] = [props];
 
@@ -27,4 +27,3 @@ function Message({props}: MessageProps):JSX.Element {
   );
 }
 
-export default Message;

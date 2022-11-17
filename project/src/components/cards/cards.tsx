@@ -6,10 +6,9 @@ type CardsProps = {
 }
 
 export default function Cards({products}: CardsProps): JSX.Element {
-  const temporaryProducts = products.slice(0, 9);
   return (
     <div className="cards catalog__cards">
-      {temporaryProducts.map((product) => (
+      {products.map((product) => (
         <ProductCard
           key = {product.id}
           product = {product}

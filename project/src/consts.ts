@@ -1,18 +1,24 @@
 export enum AppRoute {
-    CATALOG = '/',
-    PRODUCT = '/product/:id',
+    MAIN = '/',
+    CATALOG = '/catalog',
+    PRODUCT = '/cameras/:id',
     BASKET = '/basket',
+    PAGES = '/:page_id',
+    PAGE404 = '*'
   }
 
 export enum NameSpace {
   Product = 'PRODUCT',
-  Ui = 'UI',
+  Review = 'REVIEW',
+  Utils = 'UTILS',
   }
 
 export enum APIRoute {
-    Cameras = '/cameras',
+    Products = '/cameras',
     Promo = '/promo',
+    Reviews='/reviews',
   }
 
 export const BACKEND_URL = 'https://camera-shop.accelerator.pages.academy';
 export const REQUEST_TIMEOUT = 5000;
+export const PAGE_LIMIT = 9;

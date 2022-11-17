@@ -1,4 +1,33 @@
-export default function ProductReviewSuccessModal():JSX.Element {
+import { useEffect } from 'react';
+import { useAppDispatch } from '../../../hooks';
+import { toggleSuccess } from '../../../store/utils-process/utils-process';
+
+type ProductReviewSuccessModalProps = {
+  isActive: boolean;
+}
+
+export default function ProductReviewSuccessModal ({isActive}: ProductReviewSuccessModalProps): JSX.Element {
+
+  const dispatch = useAppDispatch();
+  const handleReturnToPurchacesButtonClick = () => {
+    dispatch(toggleSuccess());
+  };
+
+  useEffect(() => {
+    const isEscapeKey = (evt:KeyboardEvent) => evt.key === 'Escape';
+    const handleEscKeyPress = (evt: KeyboardEvent) => {
+      if(isEscapeKey(evt)) {
+        dispatch(toggleSuccess());
+      }
+    };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleEscKeyPress);
+    return () => {
+      document.body.style.overflow = 'visible';
+      document.removeEventListener('keydown', handleEscKeyPress);
+    };
+  },[dispatch]);
+
   return (
     <div className="modal is-active modal--narrow">
       <div className="modal__wrapper">
@@ -9,10 +38,10 @@ export default function ProductReviewSuccessModal():JSX.Element {
             <use xlinkHref="#icon-review-success"></use>
           </svg>
           <div className="modal__buttons">
-            <button className="btn btn--purple modal__btn modal__btn--fit-width" type="button">Вернуться к покупкам
+            <button className="btn btn--purple modal__btn modal__btn--fit-width" id="success-button" type="button" onClick={handleReturnToPurchacesButtonClick} autoFocus>Вернуться к покупкам
             </button>
           </div>
-          <button className="cross-btn" type="button" aria-label="Закрыть попап">
+          <button className="cross-btn" type="button" aria-label="Закрыть попап" onClick={handleReturnToPurchacesButtonClick} onBlur={()=>{document.getElementById('success-button')?.focus();}}>
             <svg width="10" height="10" aria-hidden="true">
               <use xlinkHref="#icon-close"></use>
             </svg>
