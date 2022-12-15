@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Loader renders correctly 1`] = `
+<DocumentFragment>
+  <div
+    data-testid="loader-test"
+  >
+    Loading...
+  </div>
+</DocumentFragment>
+`;

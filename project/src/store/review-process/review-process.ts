@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { NameSpace } from '../../consts';
 import { ReviewProcess } from '../../types/state';
 import { fetchReviewsAction, postReviewAction } from '../api-actions';
+import { NameSpace } from '../../consts';
 
-const initialState: ReviewProcess = {
+export const reviewInitialState: ReviewProcess = {
   isReviewsDataLoaded: false,
   isReviewPosted: true,
   reviews: [],
@@ -11,7 +11,7 @@ const initialState: ReviewProcess = {
 
 export const reviewProcess = createSlice({
   name: NameSpace.Review,
-  initialState,
+  initialState: reviewInitialState,
   reducers: {},
   extraReducers(builder) {
     builder
@@ -36,3 +36,4 @@ export const reviewProcess = createSlice({
       });
   }
 });
+export default reviewProcess.reducer;

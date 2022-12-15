@@ -1,17 +1,16 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { AppRoute } from '../../consts';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import Header from '../../components/header/header';
-import Footer from '../../components/footer/footer';
 import Banner from '../../components/banner/banner';
-import IconsSvg from '../../components/icons-svg/icons-svg';
 import Message from '../../components/ui/message';
 import { getNumeric, getPagesCount } from '../../utils';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setCurrentPage } from '../../store/product-process/product-process';
-import { getLoadedPromoStatus, getPage, getProductCount, getPromo } from '../../store/product-process/selectors';
-import { getMessageContent, getMessageVisibilityStatus } from '../../store/utils-process/selectors';
-import { toggleMessage } from '../../store/utils-process/utils-process';
+import { useAppDispatch } from '../../hooks/use-app-dispatch';
+import { useAppSelector } from '../../hooks/use-app-selector';
+import { fetchProductsAction } from '../../store/api-actions';
+import { getProductCount } from '../../store/product-process/selectors';
+import { getLoadedPromoStatus, getPromo } from '../../store/complementary-process/selectors';
+import { getMessageContent, getMessageVisibilityStatus, getPage } from '../../store/utils-process/selectors';
+import { toggleMessage, pageSetter } from '../../store/utils-process/utils-process';
 
 export default function CatalogPage(): JSX.Element {
   const navigate = useNavigate();
@@ -24,6 +23,17 @@ export default function CatalogPage(): JSX.Element {
   const productCount = useAppSelector(getProductCount);
   const totalPages = getPagesCount(productCount);
   const dispatch = useAppDispatch();
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  useLayoutEffect(()=>{
+    if((productCount !== 0 && currentPage > totalPages) || !location.pathname.includes('/page_')) {
+      navigate(`${AppRoute.PAGE404}`);
+    }
+    if(location.pathname === (`${AppRoute.CATALOG}`)) {
+      navigate(`${AppRoute.CATALOG}/page_1`);
+      dispatch(pageSetter(1));
+    }
+  },[currentPage, dispatch, navigate, productCount, totalPages, location.pathname]);
 
   useEffect(() => {
     if (isVisible) {
@@ -31,37 +41,34 @@ export default function CatalogPage(): JSX.Element {
         dispatch(toggleMessage());
       }, 3000);
     }
-    if(location.pathname === `${AppRoute.CATALOG}${AppRoute.PAGES}`) {
-      navigate(`${AppRoute.CATALOG}/page_1`);
-    }
+  },[isVisible, dispatch]);
+
+  useEffect(()=>{
     if(getNumeric(location.pathname) !== currentPage) {
-      dispatch(setCurrentPage(getNumeric(location.pathname)));
+      dispatch(pageSetter(getNumeric(location.pathname)));
     }
-  },[isVisible, location, navigate, dispatch, currentPage]);
-  useLayoutEffect(()=>{
-    if((productCount !== 0 && currentPage > totalPages) || isNaN(currentPage)) {
-      navigate(`/${AppRoute.PAGE404}`);
+  },[currentPage, dispatch, location]);
+
+  useEffect(()=>{
+    if(!initialLoad) {
+      dispatch(fetchProductsAction(currentPage));
     }
-  },[currentPage, navigate, productCount, totalPages]);
+  },[dispatch, currentPage, initialLoad]);
+
+  useEffect(()=>{
+    setInitialLoad(false);
+  },[]);
 
   return (
-    <>
-      <IconsSvg/>
-      <div className="wrapper">
-
-        <Header/>
-
-        <main>
-          {bannerLoaded
-            ? <Banner promo={bannerData}/>
-            : ''}
-          {isVisible && <Message props={message}/>}
-          <Outlet />
-        </main>
-
-        <Footer/>
-
+    <main>
+      {bannerLoaded
+        ? <Banner promo={bannerData}/>
+        : ''}
+      {isVisible && <Message props={message}/>}
+      <div className="page-content">
+        <Outlet />
       </div>
-    </>
+    </main>
+
   );
 }

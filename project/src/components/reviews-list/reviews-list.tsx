@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import ReviewCard from '../review-card/review-card';
+import { useAppDispatch } from '../../hooks/use-app-dispatch';
+import { useAppSelector } from '../../hooks/use-app-selector';
 import { fetchReviewsAction } from '../../store/api-actions';
 import { getLoadedReviewsStatus, getReviews } from '../../store/review-process/selectors';
 import { toggleReview } from '../../store/utils-process/utils-process';
-import ReviewCard from '../review-card/review-card';
+
 
 type ReviewListProps = {
   id: number;
@@ -16,8 +18,7 @@ export default function ReviewsList({id}: ReviewListProps): JSX.Element {
   const isLoaded = useAppSelector(getLoadedReviewsStatus);
   const [sliceLimit, setSliceLimit] = useState(3);
   const [initialRender, setInitialRender] = useState(true);
-  const reviews = reviewsArray.slice(0, sliceLimit);
-  reviews.sort((a, b) => (a.createAt > b.createAt ? -1 : 1));
+  const reviews = [...reviewsArray].sort((a, b) => (a.createAt > b.createAt ? -1 : 1)).slice(0, sliceLimit);
 
   useEffect(() => {
     function loadMoreReviews(){
@@ -58,7 +59,7 @@ export default function ReviewsList({id}: ReviewListProps): JSX.Element {
         <div className="container">
           <div className="page-content__headed">
             <h2 className="title title--h3">Отзывы</h2>
-            <button className="btn" type="button" onClick={handlePostReviewButtonClick}>Оставить свой отзыв
+            <button data-testid='review-button-test' className="btn" type="button" onClick={handlePostReviewButtonClick}>Оставить свой отзыв
             </button>
           </div>
           <ul className="review-block__list">

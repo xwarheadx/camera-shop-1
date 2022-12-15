@@ -1,21 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { NameSpace } from '../../consts';
 import { MessageType } from '../../types/message';
 import { UtilsProcess } from '../../types/state';
+import { NameSpace } from '../../consts';
 
-
-const initialState: UtilsProcess = {
+export const utilsInitialState: UtilsProcess = {
   showMessage: false,
   showReview: false,
   showSuccess: false,
+  showCart: false,
   message: {} as MessageType,
+  currentPage: 0,
 };
 
 export const utilsProcess = createSlice({
   name: NameSpace.Utils,
-  initialState,
+  initialState: utilsInitialState,
   reducers: {
-    formMessage(state, action) {
+    pageSetter(state, action) {
+      state.currentPage = action.payload as number;
+    },
+    formErrorMessage(state, action) {
       state.message = action.payload as MessageType;
     },
     toggleReview(state) {
@@ -27,7 +31,11 @@ export const utilsProcess = createSlice({
     toggleSuccess(state) {
       state.showSuccess = !state.showSuccess;
     },
+    toggleCart(state) {
+      state.showCart = !state.showCart;
+    }
   },
 });
 
-export const {formMessage, toggleMessage, toggleReview, toggleSuccess} = utilsProcess.actions;
+export const { pageSetter, formErrorMessage, toggleMessage, toggleReview, toggleSuccess, toggleCart} = utilsProcess.actions;
+export default utilsProcess.reducer;

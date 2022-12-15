@@ -7,20 +7,11 @@ type MessageProps = {
 
 export default function Message({props}: MessageProps):JSX.Element {
 
-  const [{status, title, message}] = [props];
-
-  let specialClasses = '';
-  if (status === 'error') {
-    specialClasses = classes.error;
-  }
-  if (status === 'success') {
-    specialClasses = classes.success;
-  }
-
-  const cssClasses = `${classes.notification} ${specialClasses}`;
+  const [{title, message}] = [props];
+  const cssClasses = `${classes.notification} ${classes.error}`;
 
   return (
-    <section className={cssClasses}>
+    <section data-testid='error-test' className={cssClasses}>
       <h2>{title}</h2>
       <p>{message}</p>
     </section>

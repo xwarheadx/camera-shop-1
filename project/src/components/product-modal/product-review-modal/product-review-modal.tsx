@@ -1,43 +1,49 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
+import Message from '../../ui/message';
+import { useAppDispatch } from '../../../hooks/use-app-dispatch';
+import { useAppSelector } from '../../../hooks/use-app-selector';
+import { useEventListener } from '../../../hooks/use-event-listener';
 import { fetchReviewsAction, postReviewAction } from '../../../store/api-actions';
 import { getPostReviewStatus } from '../../../store/review-process/selectors';
 import { getMessageContent, getMessageVisibilityStatus } from '../../../store/utils-process/selectors';
 import {toggleReview, toggleSuccess} from '../../../store/utils-process/utils-process';
-import Message from '../../ui/message';
+import {validateForm, validateInput} from '../../../utils';
 
 type ProductReviewModalProps = {
-  isActive: boolean;
   id: number;
 }
-export default function ProductReviewModal({isActive, id}: ProductReviewModalProps): JSX.Element {
+export default function ProductReviewModal({ id}: ProductReviewModalProps): JSX.Element {
   const dispatch = useAppDispatch();
   const params = useParams();
   const message = useAppSelector(getMessageContent);
   const isVisible = useAppSelector(getMessageVisibilityStatus);
   const postStatus = useAppSelector(getPostReviewStatus);
-
-  useEffect(() => {
-    const isEscapeKey = (evt:KeyboardEvent) => evt.key === 'Escape';
-    const handleEscKeyPress = (evt: KeyboardEvent) => {
-      if(isEscapeKey(evt)) {
-        dispatch(toggleReview());
-      }
-    };
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', handleEscKeyPress);
-    return () => {
-      document.body.style.overflow = 'visible';
-      document.removeEventListener('keydown', handleEscKeyPress);
-    };
-  },[dispatch]);
+  useEventListener(toggleReview);
 
   const handleToggleModalClick = () => {
     dispatch(toggleReview());
   };
+
+  const handleFormSubmitClick = (evt: FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
+    const reviewData = {...inputData, rating: Number(inputData.rating)};
+    if(validateForm(reviewData)) {
+      dispatch(postReviewAction(reviewData)).then(
+        (response) => {
+          if (response.meta.requestStatus === 'fulfilled') {
+            handleToggleModalClick();
+            dispatch(toggleSuccess());
+            dispatch(fetchReviewsAction(id));
+          }
+        }
+      );
+    }
+  };
+
   const handleReviewChange = (evt: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
     const {name, value} = evt.target;
+    validateInput(evt.target);
     setReviewData({...inputData, [name]: value,});
   };
 
@@ -47,36 +53,20 @@ export default function ProductReviewModal({isActive, id}: ProductReviewModalPro
     advantage: '',
     disadvantage: '',
     review: '',
-    rating: 0
+    rating: ''
   });
 
   return (
-    <div className={isActive
-      ? 'modal is-active'
-      : 'modal'}
-    >
+    <div className='modal is-active'>
       {isVisible && <Message props={message}/>}
       <div className="modal__wrapper">
         <div className="modal__overlay" onClick={handleToggleModalClick}></div>
         <div className="modal__content" id='modal'>
           <p className="title title--h4">Оставить отзыв</p>
           <div className="form-review">
-            <form method="post" onSubmit={(evt: FormEvent<HTMLFormElement>) => {
-              evt.preventDefault();
-              const reviewData = {...inputData, rating: Number(inputData.rating)};
-              dispatch(postReviewAction(reviewData)).then(
-                (response) => {
-                  if (response.meta.requestStatus === 'fulfilled') {
-                    handleToggleModalClick();
-                    dispatch(toggleSuccess());
-                    dispatch(fetchReviewsAction(id));
-                  }
-                }
-              );
-            }}
-            >
+            <form method="post" onSubmit={handleFormSubmitClick} noValidate>
               <div className="form-review__rate">
-                <fieldset className="rate form-review__item">
+                <fieldset className="rate form-review__item" title='form-review'>
                   <legend className="rate__caption">Рейтинг
                     <svg width="9" height="9" aria-hidden="true">
                       <use xlinkHref="#icon-snowflake"></use>
@@ -84,7 +74,7 @@ export default function ProductReviewModal({isActive, id}: ProductReviewModalPro
                   </legend>
                   <div className="rate__bar">
                     <div className="rate__group">
-                      <input onChange={handleReviewChange} className="visually-hidden" id="star-5" name="rating" type="radio" value={5} autoFocus/>
+                      <input onChange={handleReviewChange} className="visually-hidden" id="star-5" name="rating" type="radio" value={5} autoFocus required/>
                       <label className="rate__label" htmlFor="star-5" title="Отлично"></label>
                       <input onChange={handleReviewChange} className="visually-hidden" id="star-4" name="rating" type="radio" value={4}/>
                       <label className="rate__label" htmlFor="star-4" title="Хорошо"></label>
@@ -100,7 +90,7 @@ export default function ProductReviewModal({isActive, id}: ProductReviewModalPro
                   </div>
                   <p className="rate__message">Нужно оценить товар</p>
                 </fieldset>
-                <div className="custom-input form-review__item">
+                <div data-testid='custom-input-test' className="custom-input form-review__item">
                   <label>
                     <span className="custom-input__label">Ваше имя
                       <svg width="9" height="9" aria-hidden="true">
@@ -140,18 +130,21 @@ export default function ProductReviewModal({isActive, id}: ProductReviewModalPro
                         <use xlinkHref="#icon-snowflake"></use>
                       </svg>
                     </span>
-                    <textarea onChange={handleReviewChange} name="review" minLength={5} placeholder="Поделитесь своим опытом покупки"></textarea>
+                    <textarea onChange={handleReviewChange} name="review" minLength={5} placeholder="Поделитесь своим опытом покупки" required></textarea>
                   </label>
-                  <div className="custom-textarea__error">Нужно добавить комментарий</div>
+                  <div className="custom-textarea__error">{inputData.review.length === 0
+                    ? 'Нужно добавить комментарий'
+                    : 'Длинна не менее 5 символов'}
+                  </div>
                 </div>
               </div>
-              <button className="btn btn--purple form-review__btn" type="submit" disabled={!postStatus}>{postStatus
+              <button data-testid='submit-test' className="btn btn--purple form-review__btn" type="submit" disabled={!postStatus}>{postStatus
                 ? 'Отправить отзыв'
                 : 'Отправляю...'}
               </button>
             </form>
           </div>
-          <button className="cross-btn" onBlur={()=>{document.getElementById('star-1')?.focus();}} type="button" onClick={handleToggleModalClick} aria-label="Закрыть попап" >
+          <button data-testid='cross-btn-test' className="cross-btn" onBlur={()=>{document.getElementById('star-1')?.focus();}} type="button" onClick={handleToggleModalClick} aria-label="Закрыть попап" >
             <svg width="10" height="10" aria-hidden="true">
               <use xlinkHref="#icon-close"></use>
             </svg>

@@ -1,32 +1,19 @@
-import { useEffect } from 'react';
-import { useAppDispatch } from '../../../hooks';
+import { useEventListener } from '../../../hooks/use-event-listener';
+import { useAppDispatch } from '../../../hooks/use-app-dispatch';
 import { toggleSuccess } from '../../../store/utils-process/utils-process';
 
 type ProductReviewSuccessModalProps = {
-  isActive: boolean;
+  isSuccessActive: boolean;
 }
 
-export default function ProductReviewSuccessModal ({isActive}: ProductReviewSuccessModalProps): JSX.Element {
+export default function ProductReviewSuccessModal ({isSuccessActive}: ProductReviewSuccessModalProps): JSX.Element {
 
   const dispatch = useAppDispatch();
   const handleReturnToPurchacesButtonClick = () => {
     dispatch(toggleSuccess());
   };
 
-  useEffect(() => {
-    const isEscapeKey = (evt:KeyboardEvent) => evt.key === 'Escape';
-    const handleEscKeyPress = (evt: KeyboardEvent) => {
-      if(isEscapeKey(evt)) {
-        dispatch(toggleSuccess());
-      }
-    };
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', handleEscKeyPress);
-    return () => {
-      document.body.style.overflow = 'visible';
-      document.removeEventListener('keydown', handleEscKeyPress);
-    };
-  },[dispatch]);
+  useEventListener({isSuccessActive});
 
   return (
     <div className="modal is-active modal--narrow">
@@ -37,17 +24,16 @@ export default function ProductReviewSuccessModal ({isActive}: ProductReviewSucc
           <svg className="modal__icon" width="80" height="78" aria-hidden="true">
             <use xlinkHref="#icon-review-success"></use>
           </svg>
-          <div className="modal__buttons">
-            <button className="btn btn--purple modal__btn modal__btn--fit-width" id="success-button" type="button" onClick={handleReturnToPurchacesButtonClick} autoFocus>Вернуться к покупкам
-            </button>
-          </div>
-          <button className="cross-btn" type="button" aria-label="Закрыть попап" onClick={handleReturnToPurchacesButtonClick} onBlur={()=>{document.getElementById('success-button')?.focus();}}>
-            <svg width="10" height="10" aria-hidden="true">
-              <use xlinkHref="#icon-close"></use>
-            </svg>
+          <button data-testid='success-button-test' className="btn btn--purple modal__btn modal__btn--fit-width" id="success-button" type="button" onClick={handleReturnToPurchacesButtonClick} autoFocus>Вернуться к покупкам
           </button>
         </div>
+        <button data-testid='cross-btn-test' className="cross-btn" type="button" aria-label="Закрыть попап" onClick={handleReturnToPurchacesButtonClick} onBlur={()=>{document.getElementById('success-button')?.focus();}}>
+          <svg width="10" height="10" aria-hidden="true">
+            <use xlinkHref="#icon-close"></use>
+          </svg>
+        </button>
       </div>
     </div>
+
   );
 }

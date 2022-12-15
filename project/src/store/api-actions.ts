@@ -1,24 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AxiosInstance } from 'axios';
-import { store } from './store';
-import { APIRoute } from '../consts';
 import { ReviewPostType, ReviewType } from '../types/review';
 import { ProductType, PromoType } from '../types/product';
 import { AppDispatch, State } from '../types/state';
-import { setProductCount } from './product-process/product-process';
-
-export const fetchProductsAction = createAsyncThunk<ProductType[], undefined, {
-  dispatch: AppDispatch;
-  state: State;
-  extra: AxiosInstance;
-}>(
-  'product/fetchProducts',
-  async (_arg, {extra: api}) => {
-    const response = await api.get(`${APIRoute.Products}/pages`);
-    store.dispatch(setProductCount(response.headers['x-total-count']));
-    return response.data as ProductType[];
-  },
-);
+import { APIRoute, PAGE_LIMIT } from '../consts';
 
 export const fetchSimilarProductsAction = createAsyncThunk<ProductType[], number, {
   dispatch: AppDispatch;
@@ -43,6 +28,26 @@ export const fetchProductAction = createAsyncThunk<ProductType, number, {
     return response.data as ProductType;
   }
 );
+type ProductsActionType = {
+  data: ProductType[];
+  header: string;
+}
+
+export const fetchProductsAction = createAsyncThunk<ProductsActionType, number, {
+  dispatch: AppDispatch;
+  state: State;
+  extra: AxiosInstance;
+}>(
+  'product/fetchProducts',
+  async (currentPage, {extra: api}) => {
+    const response = await api.get(`${APIRoute.Products}?_limit=${PAGE_LIMIT}&_page=${currentPage}`);
+    const data = response.data as ProductType[];
+    const header = response.headers['x-total-count'];
+    return {data, header} as ProductsActionType;
+  },
+);
+
+
 export const fetchPromoAction = createAsyncThunk<PromoType, undefined, {
   dispatch: AppDispatch;
   state: State;
@@ -54,6 +59,7 @@ export const fetchPromoAction = createAsyncThunk<PromoType, undefined, {
     return data;
   },
 );
+
 export const fetchReviewsAction = createAsyncThunk<ReviewType[], number, {
   dispatch: AppDispatch;
   state: State;
@@ -65,6 +71,7 @@ export const fetchReviewsAction = createAsyncThunk<ReviewType[], number, {
     return response.data as ReviewType[];
   }
 );
+
 export const postReviewAction = createAsyncThunk<unknown, ReviewPostType, {
   dispatch: AppDispatch;
   state: State;

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { AppRoute } from '../../consts';
 import { PromoType } from '../../types/product';
+import { AppRoute } from '../../consts';
 
 type BannerProps = {
   promo: PromoType;
@@ -17,9 +17,9 @@ export default function Banner({promo}: BannerProps): JSX.Element {
       </picture>
       <p className="banner__info">
         <span className="banner__message">Новинка!</span>
-        <span className="title title--h1">{name}</span>
+        <span className="title title--h1" data-testid='banner-test-title'>{name}</span>
         <span className="banner__text">Профессиональная камера от&nbsp;известного производителя</span>
-        <Link className="btn" to={`${AppRoute.PRODUCT}/${id}`}>Подробнее</Link>
+        <Link className="btn" data-testid = 'banner-test-link' to={`${AppRoute.PRODUCT}/${id}`}>Подробнее</Link>
       </p>
     </div>
   );

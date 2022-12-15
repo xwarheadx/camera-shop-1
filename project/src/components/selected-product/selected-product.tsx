@@ -1,6 +1,9 @@
-import { ProductType } from '../../types/product';
 import { useState } from 'react';
-import setRating from '../../set-rating';
+import Rating from '../rating/rating';
+import { seperatePrice } from '../../utils';
+import { useAppDispatch } from '../../hooks/use-app-dispatch';
+import { cartToggler } from '../../store/utils-process/utils-process';
+import { ProductType } from '../../types/product';
 
 type SelectedProductProps = {
   camera: ProductType;
@@ -8,11 +11,17 @@ type SelectedProductProps = {
 
 export default function SelectedProduct({camera}: SelectedProductProps): JSX.Element {
   const {name, id, rating, price, reviewCount, level, type, category, vendorCode, previewImg, previewImg2x, previewImgWebp, previewImgWebp2x} = camera;
-  const [toggle, setTabsToggle] = useState(true);
+  const [tabsToggle, setTabsToggle] = useState(true);
+
+  const dispatch = useAppDispatch();
 
   const handleTabsClick = () => {
     setTabsToggle((current) => !current);
   };
+  const handleAddToCartButtonClick = () => {
+    dispatch(cartToggler());
+  };
+
   return (
     <div className="page-content__section">
       <section className="product">
@@ -26,31 +35,31 @@ export default function SelectedProduct({camera}: SelectedProductProps): JSX.Ele
           <div className="product__content">
             <h1 className="title title--h3">{name}</h1>
             <div className="rate product__rate">
-              {setRating(id, rating, true)}
+              <Rating id={id} rating={rating} ariaHiddenState/>
               <p className="visually-hidden">Рейтинг: {rating}</p>
               <p className="rate__count"><span className="visually-hidden">Всего оценок:</span>{reviewCount}</p>
             </div>
-            <p className="product__price"><span className="visually-hidden">Цена:</span>{price} ₽</p>
-            <button className="btn btn--purple" type="button">
+            <p className="product__price"><span className="visually-hidden">Цена:</span>{seperatePrice(price)} ₽</p>
+            <button className="btn btn--purple" type="button" onClick={handleAddToCartButtonClick}>
               <svg width="24" height="16" aria-hidden="true">
                 <use xlinkHref="#icon-add-basket"></use>
               </svg>Добавить в корзину
             </button>
             <div className="tabs product__tabs">
               <div className="tabs__controls product__tabs-controls">
-                <button onClick={handleTabsClick} className={toggle
+                <button onClick={handleTabsClick} data-testid='characteristics-button-test' className={tabsToggle
                   ? 'tabs__control'
                   : 'tabs__control is-active'} type="button"
                 >Характеристики
                 </button>
-                <button onClick={handleTabsClick} className={toggle
+                <button onClick={handleTabsClick} data-testid='info-button-test' className={tabsToggle
                   ? 'tabs__control is-active'
                   : 'tabs__control'} type="button"
                 >Описание
                 </button>
               </div>
               <div className="tabs__content">
-                <div className={toggle
+                <div className={tabsToggle
                   ? 'tabs__element'
                   : 'tabs__element is-active'}
                 >
@@ -69,7 +78,7 @@ export default function SelectedProduct({camera}: SelectedProductProps): JSX.Ele
                     </li>
                   </ul>
                 </div>
-                <div className={toggle
+                <div className={tabsToggle
                   ? 'tabs__element is-active'
                   : 'tabs__element'}
                 >

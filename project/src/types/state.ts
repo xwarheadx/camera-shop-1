@@ -6,11 +6,13 @@ import { ReviewType } from './review';
 export type ProductProcess = {
   isProductsDataLoaded: boolean;
   isProductDataLoaded: boolean;
-  isPromoDataLoaded: boolean;
   productCount: number;
-  currentPage: number;
   products: ProductType[];
+  similarProducts: ProductType[];
   product: ProductType;
+}
+export type ComplementaryProcess = {
+  isPromoDataLoaded: boolean;
   promo: PromoType;
 }
 
@@ -24,7 +26,9 @@ export type UtilsProcess = {
   showMessage: boolean;
   showReview: boolean;
   showSuccess: boolean;
+  showCart: boolean;
   message: MessageType;
+  currentPage: number;
 }
 
 export type State = ReturnType<typeof store.getState>;

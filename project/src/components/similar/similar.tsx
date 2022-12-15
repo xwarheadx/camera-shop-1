@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { fetchSimilarProductsAction } from '../../store/api-actions';
-import { getLoadedProductsStatus, getProducts } from '../../store/product-process/selectors';
-import { ProductType } from '../../types/product';
 import ProductCard from '../product-card/product-card';
+import { useAppDispatch } from '../../hooks/use-app-dispatch';
+import { useAppSelector } from '../../hooks/use-app-selector';
+import { fetchSimilarProductsAction } from '../../store/api-actions';
+import { getLoadedProductsStatus, getSimilarProducts } from '../../store/product-process/selectors';
+import { ProductType } from '../../types/product';
 
 interface SimilarProps {
   camera: ProductType;
@@ -12,7 +13,7 @@ interface SimilarProps {
 export default function Similar({camera}: SimilarProps): JSX.Element {
   const {id} = camera;
   const dispatch = useAppDispatch();
-  const similarProducts = useAppSelector(getProducts);
+  const similarProducts = useAppSelector(getSimilarProducts);
   const isDataLoaded = useAppSelector(getLoadedProductsStatus);
 
   const [slice, setPrimary] = useState({
@@ -46,12 +47,12 @@ export default function Similar({camera}: SimilarProps): JSX.Element {
                 <ProductCard key={product.id} isSimilar product = {product}/>
               ))}
             </div>
-            <button className="slider-controls slider-controls--prev" onClick={handlePreviousSlideButton} type="button" aria-label="Предыдущий слайд" disabled={slice.start === 0}>
+            <button data-testid="slider-controls--prev-test" className="slider-controls slider-controls--prev" onClick={handlePreviousSlideButton} type="button" aria-label="Предыдущий слайд" disabled={slice.start === 0}>
               <svg width="7" height="12" aria-hidden="true">
                 <use xlinkHref="#icon-arrow"></use>
               </svg>
             </button>
-            <button className="slider-controls slider-controls--next" onClick={handleNextSlideButton} type="button" aria-label="Следующий слайд" disabled={slice.end >= similarProducts.length}>
+            <button data-testid="slider-controls--next-test" className="slider-controls slider-controls--next" onClick={handleNextSlideButton} type="button" aria-label="Следующий слайд" disabled={slice.end >= similarProducts.length}>
               <svg width="7" height="12" aria-hidden="true" >
                 <use xlinkHref="#icon-arrow"></use>
               </svg>

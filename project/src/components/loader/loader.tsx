@@ -1,5 +1,5 @@
 export default function Loader(): JSX.Element {
   return (
-    <div>Loading...</div>
+    <div data-testid='loader-test'>Loading...</div>
   );
 }
